@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>사내 축구 토토 현황</title>
+    <style>
+        :root {
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-sub: #666666;
+            --primary: #007aff;
+            --win-color: #e74c3c;
+            --lose-color: #3498db;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 20px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            color: #222;
+            font-weight: 700;
+        }
+
+        header p {
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            margin-top: 4px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+        }
+
+        /* 매치 정보 보드 */
+        .match-banner {
+            background: linear-gradient(135deg, #1f2937, #111827);
+            color: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .match-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+
+        .match-teams {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .vs-badge {
+            background-color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        /* 투표 현황 리스트 */
+        .card-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .user-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .predict-score {
+            font-size: 0.9rem;
+            color: var(--text-sub);
+        }
+
+        .predict-result {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .status-win {
+            background-color: #fde8e8;
+            color: var(--win-color);
+        }
+
+        .status-lose {
+            background-color: #e1f5fe;
+            color: var(--lose-color);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>🏆 사내 축구 토토</h1>
+            <p>모바일 확인용 결과 페이지</p>
+        </header>
+
+        <div class="match-banner">
+            <div class="match-title">국가대표 친선경기</div>
+            <div class="match-teams">
+                <span>🇰🇷 대한민국</span>
+                <span class="vs-badge">VS</span>
+                <span>🇲🇽 멕시코</span>
+            </div>
+        </div>
+
+        <div class="card-list" id="toto-list">
+            </div>
+    </div>
+
+    <script>
+        // 📌 [여기에 데이터를 입력하세요] 
+        // 이름, 예측 스코어, 승패 결과를 배열에 넣으면 화면에 자동으로 그려집니다.
+        const totoData = [
+            { name: "김철수", score: "2 : 1", result: "승리" },
+            { name: "이영희", score: "1 : 2", result: "패배" },
+            { name: "박민수", score: "3 : 0", result: "승리" },
+            { name: "최지원", score: "0 : 2", result: "패배" },
+            { name: "홍길동", score: "1 : 1", result: "무승부" } // 필요시 무승부도 가능
+        ];
+
+        const listContainer = document.getElementById('toto-list');
+
+        totoData.forEach(item => {
+            // 결과에 따른 스타일 클래스 분기
+            let resultClass = 'status-win';
+            if (item.result === '패배') {
+                resultClass = 'status-lose';
+            } else if (item.result === '무승부') {
+                resultClass = 'status-draw'; // 기본 스타일 적용
+            }
+
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <div class="user-info">
+                    <div class="user-name">${item.name}</div>
+                    <div class="predict-score">예측: ${item.score}</div>
+                </div>
+                <div class="predict-result ${resultClass}">
+                    ${item.result}
+                </div>
+            `;
+            listContainer.appendChild(card);
+        });
+    </script>
+</body>
+</html>
