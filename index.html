@@ -6,59 +6,491 @@
     <title>한화손보 IT지원파트 승부예측</title>
     <style>
         :root {
-            --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
-            --text-main: #212529;
-            --text-sub: #495057;
             --orange-main: #ff6b00;
-            --orange-hover: #e05e00;
-            --border-color: #dee2e6;
-            
-            --win-color: #dc3545;
-            --lose-color: #0d6efd;
-            --draw-color: #6c757d;
+            --orange-hover: #f05a00;
+            --bg-color: #f5f6f8;
+            --card-bg: #ffffff;
+            --text-dark: #222222;
+            --text-gray: #666666;
+            --border-color: #e9ecef;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-main); padding: 20px 16px; display: flex; flex-direction: column; align-items: center; }
-        .container { width: 100%; max-width: 480px; }
-        header { text-align: center; margin-bottom: 20px; }
-        header h1 { font-size: 1.45rem; color: var(--orange-main); font-weight: 800; letter-spacing: -0.5px; }
-        header p { font-size: 0.85rem; color: var(--text-sub); margin-top: 6px; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-        .input-box { background-color: var(--card-bg); border-radius: 12px; padding: 16px; margin-bottom: 24px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.03); border: 1px solid var(--border-color); }
-        .form-row { display: flex; gap: 8px; margin-bottom: 10px; }
-        .form-row input, .form-row select { flex: 1; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.9rem; outline: none; background-color: #fdfdfd; }
-        .fixed-dept { flex: 1; padding: 12px; border: 1px solid #ffe6d5; border-radius: 8px; font-size: 0.9rem; font-weight: 700; color: var(--orange-main); background-color: #fff5ed; text-align: center; display: flex; align-items: center; justify-content: center; }
-        input:focus, select:focus { border-color: var(--orange-main); background-color: #fff; }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-        .btn-group { display: flex; gap: 6px; }
-        button { padding: 12px; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: background 0.15s; }
-        .btn-submit { flex: 3; background-color: var(--orange-main); color: white; }
-        .btn-submit:hover { background-color: var(--orange-hover); }
-        .btn-reset { flex: 1; background-color: #e9ecef; color: #495057; }
+        .container {
+            width: 100%;
+            max-width: 450px;
+        }
 
-        .list-title { font-size: 1rem; font-weight: 700; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; padding: 0 4px; }
-        .member-count { color: var(--orange-main); font-size: 0.9rem; }
-        .member-list { display: flex; flex-direction: column; gap: 8px; }
-        .member-card { background-color: var(--card-bg); border-radius: 10px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        .member-info { display: flex; flex-direction: column; gap: 4px; }
-        .member-name-tag { display: flex; align-items: center; gap: 6px; }
-        .member-name { font-size: 1.05rem; font-weight: 700; }
-        .dept-tag { font-size: 0.75rem; background-color: #f1f3f5; color: #666; padding: 1px 6px; border-radius: 4px; }
-        .member-match-score { font-size: 0.85rem; color: var(--text-sub); }
-        .member-result-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; text-align: center; min-width: 65px; }
+        /* 오리지널 상단 타이틀 배너 */
+        .header-title {
+            text-align: center;
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--orange-main);
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
 
-        .badge-win { background-color: #fff0f0; color: var(--win-color); }
-        .badge-lose { background-color: #edf2ff; color: var(--lose-color); }
-        .badge-draw { background-color: #f1f3f5; color: var(--draw-color); }
+        /* 경기 스코어보드 스타일 */
+        .match-card {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            color: #ffffff;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+            margin-bottom: 16px;
+        }
+
+        .match-meta {
+            text-align: center;
+            font-size: 0.75rem;
+            opacity: 0.6;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+        }
+
+        .match-body {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .team-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 35%;
+        }
+
+        .team-flag {
+            width: 48px;
+            height: 32px;
+            object-fit: cover;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            margin-bottom: 6px;
+        }
+
+        .team-name {
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .team-rank {
+            font-size: 0.7rem;
+            opacity: 0.5;
+            margin-top: 2px;
+        }
+
+        .vs-box {
+            text-align: center;
+        }
+
+        .vs-text {
+            font-size: 0.85rem;
+            font-weight: 800;
+            background-color: var(--orange-main);
+            padding: 2px 8px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+
+        .match-time {
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+
+        .match-info-tags {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 12px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+
+        /* 통계 인포 텍스트 */
+        .info-banner {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 14px;
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            border: 1px solid var(--border-color);
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            color: var(--text-gray);
+        }
+
+        .info-val {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--orange-main);
+        }
+
+        /* 탭 가이드 */
+        .tab-menu {
+            display: flex;
+            background-color: #e2e8f0;
+            border-radius: 8px;
+            padding: 4px;
+            margin-bottom: 16px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: var(--text-gray);
+        }
+
+        .tab-btn.active {
+            background-color: #ffffff;
+            color: var(--text-dark);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        /* 입력 컨텐츠 박스 */
+        .content-section {
+            background-color: var(--card-bg);
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .content-section.hidden {
+            display: none;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-gray);
+            margin-bottom: 6px;
+        }
+
+        /* 스코어 입력 그리드 */
+        .score-input-grid {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .score-team-label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .score-team-label img {
+            width: 20px;
+            border-radius: 2px;
+        }
+
+        .score-input-grid input {
+            width: 60px;
+            padding: 10px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: #fafafa;
+            outline: none;
+        }
+
+        .score-colon {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-gray);
+        }
+
+        /* 기본 인풋, 셀렉트 */
+        input[type="text"], .fixed-box {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            outline: none;
+            background-color: #fafafa;
+        }
+
+        .fixed-box {
+            background-color: #fff5ed;
+            border-color: #ffe6d5;
+            color: var(--orange-main);
+            font-weight: 700;
+        }
+
+        input:focus {
+            border-color: var(--orange-main);
+            background-color: #ffffff;
+        }
+
+        /* 액션 버튼 */
+        .btn-main {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--orange-main);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-main:hover {
+            background-color: var(--orange-hover);
+        }
+
+        /* 실시간 리스트 뷰 영역 */
+        .list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .list-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 12px 14px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .list-user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .list-name-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .list-name {
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .list-tag {
+            font-size: 0.7rem;
+            background-color: #f1f3f5;
+            color: var(--text-gray);
+            padding: 1px 5px;
+            border-radius: 4px;
+        }
+
+        .list-predict {
+            font-size: 0.8rem;
+            color: var(--text-gray);
+        }
+
+        .list-score-badge {
+            background-color: #fff5ed;
+            color: var(--orange-main);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 800;
+        }
+
+        /* 관리자 영역 하단 */
+        .admin-area {
+            margin-top: 24px;
+            border-top: 1px dashed var(--border-color);
+            padding-top: 16px;
+            text-align: center;
+        }
+
+        .btn-admin-trigger {
+            font-size: 0.8rem;
+            color: #999;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .admin-panel {
+            margin-top: 10px;
+            background-color: #f1f3f5;
+            padding: 14px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .admin-panel.show {
+            display: block;
+        }
+
+        .btn-danger {
+            width: 100%;
+            padding: 10px;
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* 입금 팝업 모달창 구조 */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .modal-overlay.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal-box {
+            background-color: #ffffff;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 360px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .modal-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-gray);
+            margin-bottom: 16px;
+        }
+
+        .account-card {
+            background-color: #f8f9fa;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px;
+            text-align: left;
+            margin-bottom: 16px;
+        }
+
+        .account-row {
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+        }
+
+        .account-row span:first-child {
+            color: var(--text-gray);
+            display: inline-block;
+            width: 60px;
+        }
+
+        .account-row span:last-child {
+            font-weight: 700;
+        }
+
+        .modal-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .modal-btn-confirm { background-color: var(--orange-main); color: #fff; }
+        .modal-btn-cancel { background-color: #e2e8f0; color: var(--text-gray); }
     </style>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, push, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // ⚠️ 2단계에서 발급받은 본인의 설정값으로 채워 넣으세요!
+        // ⚠️ 본인의 Firebase 설정값으로 변경하세요!
         const firebaseConfig = {
             apiKey: "AIzaSyBiATOpkqDyP24Q_l-YdLALNYpxVj6hUJc",
             authDomain: "it-toto.firebaseapp.com",
@@ -71,77 +503,130 @@
 
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
-        const totoRef = ref(database, 'totoList');
+        const totoRef = ref(database, 'hanwhaTotoList');
 
-        // [기능 1] 파트원들이 값을 입력하면 DB로 던져주는(저장) 함수
-        window.registerMember = function() {
-            const name = document.getElementById('inputName').value.trim();
-            const dept = "IT지원파트";
-            const match = document.getElementById('inputMatch').value;
-            const score = document.getElementById('inputScore').value.trim();
-            const result = document.getElementById('inputResult').value;
+        // 임시 저장용 변수
+        let tempPrediction = null;
 
-            if (!name) { alert('이름을 입력해 주세요!'); return; }
-            if (!score) { alert('예측 스코어를 입력해 주세요! (예: 2:1)'); return; }
+        // 탭 전환 기능 구현
+        window.switchTab = function(tabName) {
+            const tabs = document.querySelectorAll('.tab-btn');
+            const sections = document.querySelectorAll('.content-section');
+            
+            tabs.forEach(t => t.classList.remove('active'));
+            sections.forEach(s => s.classList.add('hidden'));
 
-            push(totoRef, {
-                name: name,
-                dept: dept,
-                match: match,
-                score: score,
-                result: result,
-                timestamp: Date.now()
-            }).then(() => {
-                document.getElementById('inputName').value = '';
-                document.getElementById('inputScore').value = '';
-            });
-        }
-
-        // [기능 2] 관리자 번호인 5123을 입력해야만 초기화되는 함수
-        window.resetAllData = function() {
-            const password = prompt('관리자 비밀번호를 입력하세요:');
-            if (password === '5123') {
-                if (confirm('정말 모든 사람의 데이터를 영구 삭제하시겠습니까?')) {
-                    set(totoRef, null);
-                    alert('성공적으로 전체 삭제되었습니다.');
-                }
+            if (tabName === 'vote') {
+                document.getElementById('tab-vote').classList.add('active');
+                document.getElementById('section-vote').classList.remove('hidden');
             } else {
-                alert('비밀번호가 틀렸습니다. 관리자만 초기화할 수 있습니다.');
+                document.getElementById('tab-list').classList.add('active');
+                document.getElementById('section-list').classList.remove('hidden');
             }
         }
 
-        // [기능 3] 누군가 새로 등록하거나 삭제해서 DB가 바뀌면 새로고침 없이 전 직원 화면을 갱신해주는 함수
-        const listArea = document.getElementById('memberListArea');
-        const countBadge = document.getElementById('totalCount');
+        // [투표 등록 전 검증 및 팝업 띄우기]
+        window.openDepositModal = function() {
+            const homeScore = document.getElementById('scoreHome').value.trim();
+            const awayScore = document.getElementById('scoreAway').value.trim();
+            const name = document.getElementById('inputName').value.trim();
+            const dept = "IT지원파트"; // 내부 값 고정
+
+            if (!homeScore || !awayScore) { alert('대한민국과 멕시코의 스코어를 모두 입력해 주세요!'); return; }
+            if (!name) { alert('이름을 입력해 주세요!'); return; }
+
+            // 임시 데이터 세팅
+            tempPrediction = {
+                name: name,
+                dept: dept,
+                score: `${homeScore}:${awayScore}`,
+                timestamp: Date.now()
+            };
+
+            // 모달창 오픈
+            document.getElementById('modalOverlay').classList.add('show');
+        }
+
+        window.closeDepositModal = function() {
+            document.getElementById('modalOverlay').classList.remove('show');
+            tempPrediction = null;
+        }
+
+        // [최종 입금 완료 및 DB 실제 전송]
+        window.submitPrediction = function() {
+            if (!tempPrediction) return;
+
+            push(totoRef, tempPrediction).then(() => {
+                alert('예측 등록이 완료되었습니다!');
+                document.getElementById('scoreHome').value = '';
+                document.getElementById('scoreAway').value = '';
+                document.getElementById('inputName').value = '';
+                closeDepositModal();
+                switchTab('list'); // 등록 후 실시간 현황 탭으로 이동
+            }).catch((err) => {
+                alert('오류 발생: ' + err.message);
+            });
+        }
+
+        // [관리자 인증 및 패널 오픈]
+        window.toggleAdminPanel = function() {
+            const panel = document.getElementById('adminPanel');
+            if (panel.classList.contains('show')) {
+                panel.classList.remove('show');
+            } else {
+                const pwd = prompt('관리자 암호를 입력하세요:');
+                if (pwd === '5123') {
+                    panel.classList.add('show');
+                } else {
+                    alert('비밀번호가 올바르지 않습니다.');
+                }
+            }
+        }
+
+        // [관리자 전체 초기화 실행]
+        window.resetDatabase = function() {
+            if (confirm('모든 참여자의 투표 데이터를 초기화 하시겠습니까? 복구할 수 없습니다.')) {
+                set(totoRef, null).then(() => {
+                    alert('성공적으로 전체 초기화 되었습니다.');
+                    document.getElementById('adminPanel').classList.remove('show');
+                });
+            }
+        }
+
+        // [실시간 데이터 수신 및 통계 UI 갱신]
+        const listArea = document.getElementById('liveListArea');
+        const countBadge = document.getElementById('totalCountVal');
+        const priceBadge = document.getElementById('totalPriceVal');
 
         onValue(totoRef, (snapshot) => {
             listArea.innerHTML = '';
             const data = snapshot.val();
 
             if (!data) {
-                countBadge.textContent = '등록: 0명';
+                countBadge.textContent = '-';
+                priceBadge.textContent = '-';
+                listArea.innerHTML = '<div style="text-align:center; color:#999; font-size:0.85rem; padding:20px;">등록된 데이터가 없습니다.</div>';
                 return;
             }
 
-            const totoMembers = Object.values(data);
-            countBadge.textContent = `등록: ${totoMembers.length}명`;
+            const members = Object.values(data);
+            countBadge.textContent = `${members.length}명`;
+            priceBadge.textContent = `${(members.length * 10000).toLocaleString()}원`;
 
-            totoMembers.forEach(member => {
-                let badgeClass = 'badge-win';
-                if (member.result === '패배') badgeClass = 'badge-lose';
-                if (member.result === '무승부') badgeClass = 'badge-draw';
-
+            members.forEach(member => {
                 const card = document.createElement('div');
-                card.className = 'member-card';
+                card.className = 'list-card';
                 card.innerHTML = `
-                    <div class="member-info">
-                        <div class="member-name-tag">
-                            <span class="member-name">${member.name}</span>
-                            <span class="dept-tag">${member.dept}</span>
+                    <div class="list-user-info">
+                        <div class="list-name-row">
+                            <span class="list-name">${member.name}</span>
+                            <span class="list-tag">${member.dept || 'IT지원파트'}</span>
                         </div>
-                        <div class="member-match-score">${member.match} | [ ${member.score} ]</div>
+                        <div class="list-predict">한국 vs 멕시코</div>
                     </div>
-                    <div class="member-result-badge ${badgeClass}">${member.result}</div>
+                    <div class="list-score-badge">
+                        ${member.score}
+                    </div>
                 `;
                 listArea.appendChild(card);
             });
@@ -151,42 +636,112 @@
 <body>
 
     <div class="container">
-        <header>
-            <h1>🍊 한화손보 IT지원파트 승부예측</h1>
-            <p>우리 파트원들의 실시간 토토 현황판</p>
-        </header>
+        <div class="header-title">한화손보 IT지원파트 승부예측</div>
 
-        <div class="input-box">
-            <div class="form-row">
-                <input type="text" id="inputName" placeholder="이름 (예: 홍길동)">
-                <div class="fixed-dept">IT지원파트</div>
+        <div class="match-card">
+            <div class="match-meta">2026 FIFA World Cup · Group A</div>
+            <div class="match-body">
+                <div class="team-box">
+                    <img class="team-flag" src="https://flagcdn.com/w160/kr.png" alt="대한민국">
+                    <span class="team-name">대한민국</span>
+                    <span class="team-rank">FIFA 25위</span>
+                </div>
+                <div class="vs-box">
+                    <span class="vs-text">VS</span>
+                    <div class="match-time">6.19 (금) 10:00</div>
+                </div>
+                <div class="team-box">
+                    <img class="team-flag" src="https://flagcdn.com/w160/mx.png" alt="멕시코">
+                    <span class="team-name">멕시코</span>
+                    <span class="team-rank">FIFA 14위</span>
+                </div>
             </div>
-            <div class="form-row">
-                <select id="inputMatch">
-                    <option value="한국 vs 멕시코">한국 vs 멕시코</option>
-                    <option value="멕시코 vs 한국">멕시코 vs 한국</option>
-                </select>
-                <select id="inputResult">
-                    <option value="승리">승리</option>
-                    <option value="패배">패배</option>
-                    <option value="무승부">무승부</option>
-                </select>
-            </div>
-            <div class="form-row" style="margin-bottom: 14px;">
-                <input type="text" id="inputScore" placeholder="예측 스코어 (예: 2:1)" style="width: 100%;">
-            </div>
-            <div class="btn-group">
-                <button type="button" class="btn-submit" onclick="registerMember()">예측 등록</button>
-                <button type="button" class="btn-reset" onclick="resetAllData()">초기화</button>
+            <div class="match-info-tags">
+                <span>🏟️ 에스타디오 과달라하라</span>
+                <span>💰 1인당 10,000원</span>
             </div>
         </div>
 
-        <div class="list-title">
-            <span>참여 멤버 리스트</span>
-            <span class="member-count" id="totalCount">등록: 0명</span>
+        <div class="info-banner">
+            <div class="info-item">
+                <span class="info-label">총 참여 인원</span>
+                <span class="info-val" id="totalCountVal">-</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">총 상금 규모</span>
+                <span class="info-val" id="totalPriceVal">-</span>
+            </div>
         </div>
 
-        <div class="member-list" id="memberListArea"></div>
+        <div class="tab-menu">
+            <button class="tab-btn active" id="tab-vote" onclick="switchTab('vote')">투표하기</button>
+            <button class="tab-btn" id="tab-list" onclick="switchTab('list')">실시간 현황</button>
+        </div>
+
+        <div id="section-vote" class="content-section">
+            <div class="section-title">스코어 예측</div>
+            
+            <div class="score-input-grid">
+                <div class="score-team-label">
+                    <img src="https://flagcdn.com/w40/kr.png" alt="kr"> 대한민국
+                </div>
+                <input type="number" id="scoreHome" min="0" placeholder="0">
+                <span class="score-colon">:</span>
+                <input type="number" id="scoreAway" min="0" placeholder="0">
+                <div class="score-team-label">
+                    멕시코 <img src="https://flagcdn.com/w40/mx.png" alt="mx">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>파트 선택</label>
+                <div class="fixed-box">IT지원파트</div>
+            </div>
+
+            <div class="form-group">
+                <label>이름</label>
+                <input type="text" id="inputName" placeholder="이름을 입력하세요">
+            </div>
+
+            <button class="btn-main" onclick="openDepositModal()">⚽ 10,000원 내고 예측 등록</button>
+        </div>
+
+        <div id="section-list" class="content-section hidden">
+            <div class="section-title">전체 투표 현황 현황</div>
+            <div class="list-container" id="liveListArea">
+                <div style="text-align: center; color: #999; font-size: 0.85rem; padding: 20px;">불러오는 중...</div>
+            </div>
+        </div>
+
+        <div class="admin-area">
+            <button class="btn-admin-trigger" onclick="toggleAdminPanel()">관리자 ···</button>
+            <div id="adminPanel" class="admin-panel">
+                <button class="btn-danger" onclick="resetDatabase()">투표 전체 초기화</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-box">
+            <div class="modal-title">입금 안내</div>
+            <div class="modal-subtitle">아래 계좌로 참가비를 입금해 주세요</div>
+            
+            <div class="account-card">
+                <div class="account-row"><span>은행</span><span>카카오뱅크</span></div>
+                <div class="account-row"><span>계좌번호</span><span>3333-06-5368259</span></div>
+                <div class="account-row"><span>예금주</span><span>황주현</span></div>
+                <div class="account-row"><span>입금액</span><span>10,000원</span></div>
+            </div>
+
+            <p style="font-size: 0.75rem; color:#e05e00; margin-bottom:14px; font-weight:700;">
+                입금 후 확인 버튼을 눌러 예측을 등록하세요
+            </p>
+
+            <div class="modal-btns">
+                <button class="modal-btn modal-btn-cancel" onclick="closeDepositModal()">취소</button>
+                <button class="modal-btn modal-btn-confirm" onclick="submitPrediction()">입금 완료, 예측 등록하기</button>
+            </div>
+        </div>
     </div>
 
 </body>
