@@ -48,7 +48,6 @@
             text-transform: uppercase;
         }
 
-        /* 매치 스코어 보드 그라디언트 심화 */
         .match-card {
             background: linear-gradient(145deg, #1e293b, #0f172a);
             color: #ffffff;
@@ -91,10 +90,6 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.3);
             margin-bottom: 8px;
             transition: transform 0.3s;
-        }
-
-        .team-box:hover .team-flag {
-            transform: scale(1.08);
         }
 
         .team-name {
@@ -140,7 +135,6 @@
             opacity: 0.9;
         }
 
-        /* 통계 인포 대시보드 구조화 */
         .info-banner {
             background-color: var(--card-bg);
             border-radius: 16px;
@@ -176,7 +170,6 @@
             color: var(--orange-main);
         }
 
-        /* 탭 가이드 트랜지션 */
         .tab-menu {
             display: flex;
             background-color: #f1f5f9;
@@ -205,7 +198,6 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.04);
         }
 
-        /* 컨텐츠 박스 애니메이션 정의 */
         .content-section {
             background-color: var(--card-bg);
             border-radius: 16px;
@@ -240,7 +232,6 @@
             margin-bottom: 8px;
         }
 
-        /* 인풋 인터랙션 고도화 */
         .score-input-grid {
             display: flex;
             align-items: center;
@@ -342,11 +333,6 @@
             transform: translateY(-1px);
         }
 
-        .btn-main:active {
-            transform: translateY(1px);
-        }
-
-        /* 카드 리스트 스케일업 애니메이션 */
         .list-container {
             display: flex;
             flex-direction: column;
@@ -373,6 +359,7 @@
             display: flex;
             flex-direction: column;
             gap: 4px;
+            flex: 1;
         }
 
         .list-name-row {
@@ -400,6 +387,12 @@
             color: var(--text-gray);
         }
 
+        .list-right-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
         .list-score-badge {
             background-color: #fff5ed;
             color: var(--orange-main);
@@ -408,9 +401,24 @@
             font-size: 0.9rem;
             font-weight: 800;
             border: 1px solid #ffe6d5;
+            white-space: nowrap;
         }
 
-        /* 어드민 컴포넌트 */
+        /* 개별 삭제 버튼 스타일 (초기엔 숨김) */
+        .btn-delete-item {
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 4px;
+            display: none; 
+            transition: transform 0.2s;
+        }
+
+        .btn-delete-item:hover {
+            transform: scale(1.2);
+        }
+
         .admin-area {
             margin-top: 32px;
             border-top: 1px dashed var(--border-color);
@@ -425,11 +433,6 @@
             border: none;
             cursor: pointer;
             font-weight: 500;
-            transition: color 0.2s;
-        }
-
-        .btn-admin-trigger:hover {
-            color: var(--text-gray);
         }
 
         .admin-panel {
@@ -455,14 +458,8 @@
             font-size: 0.85rem;
             font-weight: 700;
             cursor: pointer;
-            transition: background 0.2s;
         }
 
-        .btn-danger:hover {
-            background-color: #dc2626;
-        }
-
-        /* 블러 처리 모달 오버레이 */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -499,17 +496,8 @@
             transform: translateY(0);
         }
 
-        .modal-title {
-            font-size: 1.15rem;
-            font-weight: 800;
-            margin-bottom: 6px;
-        }
-
-        .modal-subtitle {
-            font-size: 0.8rem;
-            color: var(--text-gray);
-            margin-bottom: 20px;
-        }
+        .modal-title { font-size: 1.15rem; font-weight: 800; margin-bottom: 6px; }
+        .modal-subtitle { font-size: 0.8rem; color: var(--text-gray); margin-bottom: 20px; }
 
         .account-card {
             background-color: #f8fafc;
@@ -520,48 +508,15 @@
             margin-bottom: 20px;
         }
 
-        .account-row {
-            font-size: 0.85rem;
-            margin-bottom: 6px;
-            display: flex;
-        }
+        .account-row { font-size: 0.85rem; margin-bottom: 6px; display: flex; }
+        .account-row:last-child { margin-bottom: 0; }
+        .account-row span:first-child { color: var(--text-gray); display: inline-block; width: 70px; font-weight: 500; }
+        .account-row span:last-child { font-weight: 700; color: var(--text-dark); }
 
-        .account-row:last-child {
-            margin-bottom: 0;
-        }
-
-        .account-row span:first-child {
-            color: var(--text-gray);
-            display: inline-block;
-            width: 70px;
-            font-weight: 500;
-        }
-
-        .account-row span:last-child {
-            font-weight: 700;
-            color: var(--text-dark);
-        }
-
-        .modal-btns {
-            display: flex;
-            gap: 10px;
-        }
-
-        .modal-btn {
-            flex: 1;
-            padding: 14px;
-            border: none;
-            border-radius: 10px;
-            font-size: 0.9rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
+        .modal-btns { display: flex; gap: 10px; }
+        .modal-btn { flex: 1; padding: 14px; border: none; border-radius: 10px; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
         .modal-btn-confirm { background-color: var(--orange-main); color: #fff; box-shadow: 0 4px 6px rgba(255, 107, 0, 0.2); }
-        .modal-btn-confirm:hover { background-color: var(--orange-hover); }
         .modal-btn-cancel { background-color: #f1f5f9; color: var(--text-gray); }
-        .modal-btn-cancel:hover { background-color: #e2e8f0; }
     </style>
 
     <script type="module">
@@ -583,6 +538,8 @@
         const totoRef = ref(database, 'hanwhaTotoList');
 
         let tempPrediction = null;
+        let isAdminAuthenticated = false; // 어드민 인증 상태 스토어
+        let currentSnapshotData = null;   // 실시간 캐싱 데이터 공간
 
         window.switchTab = function(tabName) {
             const tabs = document.querySelectorAll('.tab-btn');
@@ -620,7 +577,6 @@
         }
 
         window.closeDepositModal = function() {
-            document.getElementById('modalOverlay').classList.remove('remove');
             document.getElementById('modalOverlay').classList.remove('show');
             tempPrediction = null;
         }
@@ -639,17 +595,34 @@
             });
         }
 
+        // 관리자 인증 핸들러 (인증 시 개별 삭제 활성화 플래그 On)
         window.toggleAdminPanel = function() {
             const panel = document.getElementById('adminPanel');
             if (panel.classList.contains('show')) {
                 panel.classList.remove('show');
+                isAdminAuthenticated = false;
+                renderList(currentSnapshotData); // 일반 뷰로 재렌더링
             } else {
                 const pwd = prompt('관리자 암호를 입력하세요:');
                 if (pwd === '5123') {
                     panel.classList.add('show');
+                    isAdminAuthenticated = true;
+                    renderList(currentSnapshotData); // 어드민 뷰로 재렌더링 (삭제 버튼 노출)
                 } else {
                     alert('비밀번호가 올바르지 않습니다.');
                 }
+            }
+        }
+
+        // [신규 기능] 단일 아이템 삭제 매핑 파이프라인
+        window.deleteSingleItem = function(itemKey, userName) {
+            if (confirm(`[관리자 기능] '${userName}'님의 데이터만 타겟 삭제하시겠습니까?`)) {
+                const targetItemRef = ref(database, `hanwhaTotoList/${itemKey}`);
+                set(targetItemRef, null).then(() => {
+                    alert('해당 데이터가 정상적으로 개별 삭제되었습니다.');
+                }).catch((err) => {
+                    alert('삭제 실패: ' + err.message);
+                });
             }
         }
 
@@ -658,6 +631,7 @@
                 set(totoRef, null).then(() => {
                     alert('성공적으로 전체 초기화 되었습니다.');
                     document.getElementById('adminPanel').classList.remove('show');
+                    isAdminAuthenticated = false;
                 });
             }
         }
@@ -666,38 +640,50 @@
         const countBadge = document.getElementById('totalCountVal');
         const priceBadge = document.getElementById('totalPriceVal');
 
-        onValue(totoRef, (snapshot) => {
+        // 렌더링 코어 로직 분리 (데이터 갱신 및 상태 전환용)
+        function renderList(snapshotVal) {
             listArea.innerHTML = '';
-            const data = snapshot.val();
-
-            if (!data) {
+            
+            if (!snapshotVal) {
                 countBadge.textContent = '-';
                 priceBadge.textContent = '-';
                 listArea.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:0.85rem; padding:40px 20px;">🏆 아직 등록된 예측이 없습니다.<br>첫 번째 주인공이 되어보세요!</div>';
                 return;
             }
 
-            const members = Object.values(data);
-            countBadge.textContent = `${members.length}명`;
-            priceBadge.textContent = `${(members.length * 10000).toLocaleString()}원`;
+            // Entries 매핑으로 고유 해시 키값(UID) 보존 추출
+            const entries = Object.entries(snapshotVal);
+            countBadge.textContent = `${entries.length}명`;
+            priceBadge.textContent = `${(entries.length * 10000).toLocaleString()}원`;
 
-            members.forEach(member => {
+            entries.forEach(([key, value]) => {
                 const card = document.createElement('div');
                 card.className = 'list-card';
+                
+                // 관리자 인증 플래그 상속 확인 후 삭제 뱃지 인라인 스타일 분기
+                const deleteBtnStyle = isAdminAuthenticated ? 'display: block;' : 'display: none;';
+
                 card.innerHTML = `
                     <div class="list-user-info">
                         <div class="list-name-row">
-                            <span class="list-name">${member.name}</span>
-                            <span class="list-tag">${member.dept}</span>
+                            <span class="list-name">${value.name}</span>
+                            <span class="list-tag">${value.dept}</span>
                         </div>
                         <div class="list-predict">한국 vs 멕시코</div>
                     </div>
-                    <div class="list-score-badge">
-                        ${member.score}
+                    <div class="list-right-section">
+                        <div class="list-score-badge">${value.score}</div>
+                        <button class="btn-delete-item" style="${deleteBtnStyle}" onclick="deleteSingleItem('${key}', '${value.name}')">🗑️</button>
                     </div>
                 `;
                 listArea.appendChild(card);
             });
+        }
+
+        // 실시간 스트림 파이프라인 리스너
+        onValue(totoRef, (snapshot) => {
+            currentSnapshotData = snapshot.val(); // 최신 스냅샷 글로벌 캐싱
+            renderList(currentSnapshotData);
         });
     </script>
 </head>
