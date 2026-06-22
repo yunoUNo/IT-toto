@@ -6,10 +6,13 @@
     <title>한화손보 IT지원파트 승부예측</title>
     <style>
         :root {
-            --orange-main: #ff6b00;
-            --orange-hover: #f05a00;
-            --orange-alpha: rgba(255, 107, 0, 0.1);
-            --bg-color: #f8fafc;
+            --sa-green: #007a4d;       
+            --sa-gold: #ffb612;        
+            --sa-gold-hover: #e09e0b;
+            --sa-red: #de3831;         
+            --sa-alpha: rgba(0, 122, 77, 0.1);
+            
+            --bg-color: #f1f5f9;
             --card-bg: #ffffff;
             --text-dark: #0f172a;
             --text-gray: #64748b;
@@ -42,20 +45,30 @@
             text-align: center;
             font-size: 1.3rem;
             font-weight: 800;
-            color: var(--orange-main);
+            color: var(--sa-green);
             margin-bottom: 16px;
             letter-spacing: -0.5px;
             text-transform: uppercase;
+            text-shadow: 1px 1px 0px rgba(255, 182, 18, 0.3);
         }
 
         .match-card {
-            background: linear-gradient(145deg, #1e293b, #0f172a);
+            background: linear-gradient(135deg, #0f172a 20%, #1e293b 40%, var(--sa-green) 100%);
             color: #ffffff;
             border-radius: 20px;
             padding: 24px 20px;
-            box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+            box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
             margin-bottom: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .match-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 6px; height: 100%;
+            background-color: var(--sa-gold);
         }
 
         .match-meta {
@@ -63,9 +76,10 @@
             font-size: 0.75rem;
             text-transform: uppercase;
             font-weight: 600;
-            opacity: 0.6;
+            opacity: 0.7;
             margin-bottom: 16px;
             letter-spacing: 1.5px;
+            color: var(--sa-gold);
         }
 
         .match-body {
@@ -87,9 +101,8 @@
             height: 36px;
             object-fit: cover;
             border-radius: 6px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
             margin-bottom: 8px;
-            transition: transform 0.3s;
         }
 
         .team-name {
@@ -100,34 +113,43 @@
 
         .team-rank {
             font-size: 0.7rem;
-            opacity: 0.5;
+            opacity: 0.6;
             margin-top: 4px;
         }
 
         .vs-box {
             text-align: center;
+            min-width: 120px;
         }
 
         .vs-text {
             font-size: 0.85rem;
             font-weight: 900;
-            background-color: var(--orange-main);
-            color: #fff;
+            background-color: var(--sa-gold);
+            color: #0f172a;
             padding: 3px 10px;
             border-radius: 20px;
             display: inline-block;
             margin-bottom: 6px;
-            box-shadow: 0 2px 4px rgba(255, 107, 0, 0.4);
+            box-shadow: 0 2px 4px rgba(255, 182, 18, 0.4);
         }
 
-        .match-time {
-            font-size: 0.75rem;
-            opacity: 0.85;
-            font-weight: 500;
+        /* 실시간 타이머 영역 전용 스타일 */
+        .countdown-timer {
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: #fff;
+            background-color: rgba(222, 56, 49, 0.85); /* 남아공 레드 배경 */
+            padding: 4px 8px;
+            border-radius: 6px;
+            margin-top: 4px;
+            display: inline-block;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .match-info-tags {
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
             padding-top: 14px;
             display: flex;
             justify-content: space-between;
@@ -147,375 +169,78 @@
             border: 1px solid var(--border-color);
         }
 
-        .info-item {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            flex: 1;
+        .info-item { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+        .info-item:first-child { border-right: 1px solid var(--border-color); }
+        .info-label { font-size: 0.75rem; font-weight: 600; color: var(--text-gray); }
+        .info-val { font-size: 1.15rem; font-weight: 800; color: var(--sa-green); }
+
+        .tab-menu { display: flex; background-color: #e2e8f0; border-radius: 12px; padding: 4px; margin-bottom: 20px; }
+        .tab-btn { flex: 1; padding: 12px; text-align: center; font-size: 0.9rem; font-weight: 700; border-radius: 8px; cursor: pointer; border: none; background: none; color: var(--text-gray); transition: all 0.2s; }
+        .tab-btn.active { background-color: #ffffff; color: var(--text-dark); box-shadow: 0 4px 6px rgba(0,0,0,0.04); }
+
+        .content-section { background-color: var(--card-bg); border-radius: 16px; padding: 24px 20px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02); border: 1px solid var(--border-color); margin-bottom: 20px; }
+        .content-section.hidden { display: none; }
+        .section-title { font-size: 1.05rem; font-weight: 800; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center; }
+
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-gray); margin-bottom: 8px; }
+
+        .score-input-grid { display: flex; align-items: center; justify-content: space-between; background-color: #f8fafc; padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px; }
+        .score-team-label { font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 6px; width: 38%; }
+        .score-team-label:last-child { justify-content: flex-end; }
+        .score-team-label img { width: 22px; border-radius: 3px; }
+        .score-input-grid input { width: 54px; padding: 8px; text-align: center; font-size: 1.2rem; font-weight: 800; border: 2px solid var(--border-color); border-radius: 8px; background-color: #ffffff; outline: none; }
+        .score-input-grid input:focus { border-color: var(--sa-green); box-shadow: 0 0 0 3px var(--sa-alpha); }
+        .score-colon { font-size: 1.2rem; font-weight: 800; color: var(--text-gray); }
+
+        input[type="text"], .fixed-box { width: 100%; padding: 14px; border: 1px solid var(--border-color); border-radius: 10px; font-size: 0.9rem; outline: none; background-color: #f8fafc; }
+        .fixed-box { background-color: #fffde6; border-color: #fff1b3; color: #b8860b; font-weight: 700; }
+        input[type="text"]:focus { border-color: var(--sa-green); box-shadow: 0 0 0 3px var(--sa-alpha); }
+
+        .btn-main { width: 100%; padding: 16px; background-color: var(--sa-green); color: #ffffff; border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 6px rgba(0, 122, 77, 0.2); transition: all 0.2s; }
+        .btn-main:hover { background-color: #00643f; transform: translateY(-1px); }
+        
+        /* 마감 시 회색 처리용 가이드 구체화 */
+        .btn-main:disabled {
+            background-color: #cbd5e1 !important;
+            color: #94a3b8 !important;
+            cursor: not-allowed !important;
+            box-shadow: none !important;
+            transform: none !important;
         }
 
-        .info-item:first-child {
-            border-right: 1px solid var(--border-color);
-        }
+        .list-container { display: flex; flex-direction: column; gap: 12px; }
+        .list-card { background-color: var(--card-bg); border-radius: 12px; padding: 14px 16px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; border-left: 4px solid var(--sa-green); }
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.95) translateY(5px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 
-        .info-label {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--text-gray);
-        }
+        .list-user-info { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+        .list-name-row { display: flex; align-items: center; gap: 8px; }
+        .list-name { font-size: 1rem; font-weight: 700; }
+        .list-tag { font-size: 0.7rem; font-weight: 600; background-color: #f1f5f9; color: var(--text-gray); padding: 2px 6px; border-radius: 6px; }
+        .list-predict { font-size: 0.8rem; color: var(--text-gray); }
+        .list-right-section { display: flex; align-items: center; gap: 10px; }
+        .list-score-badge { background-color: #fffde6; color: #a17800; padding: 8px 16px; border-radius: 30px; font-size: 0.9rem; font-weight: 800; border: 1px solid #fff1b3; white-space: nowrap; }
 
-        .info-val {
-            font-size: 1.15rem;
-            font-weight: 800;
-            color: var(--orange-main);
-        }
+        .btn-delete-item { background: none; border: none; font-size: 1.1rem; cursor: pointer; padding: 4px; display: none; }
+        .admin-area { margin-top: 32px; border-top: 1px dashed var(--border-color); padding-top: 20px; text-align: center; }
+        .btn-admin-trigger { font-size: 0.8rem; color: #94a3b8; background: none; border: none; cursor: pointer; font-weight: 500; }
+        .admin-panel { margin-top: 12px; background-color: #f8fafc; padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); display: none; }
+        .admin-panel.show { display: block; }
+        .btn-danger { width: 100%; padding: 12px; background-color: var(--sa-red); color: #fff; border: none; border-radius: 8px; font-size: 0.85rem; font-weight: 700; cursor: pointer; }
 
-        .tab-menu {
-            display: flex;
-            background-color: #f1f5f9;
-            border-radius: 12px;
-            padding: 4px;
-            margin-bottom: 20px;
-        }
-
-        .tab-btn {
-            flex: 1;
-            padding: 12px;
-            text-align: center;
-            font-size: 0.9rem;
-            font-weight: 700;
-            border-radius: 8px;
-            cursor: pointer;
-            border: none;
-            background: none;
-            color: var(--text-gray);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .tab-btn.active {
-            background-color: #ffffff;
-            color: var(--text-dark);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.04);
-        }
-
-        .content-section {
-            background-color: var(--card-bg);
-            border-radius: 16px;
-            padding: 24px 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
-            border: 1px solid var(--border-color);
-            margin-bottom: 20px;
-        }
-
-        .content-section.hidden {
-            display: none;
-        }
-
-        .section-title {
-            font-size: 1.05rem;
-            font-weight: 800;
-            margin-bottom: 18px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: var(--text-gray);
-            margin-bottom: 8px;
-        }
-
-        .score-input-grid {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background-color: #f8fafc;
-            padding: 16px;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            margin-bottom: 20px;
-        }
-
-        .score-team-label {
-            font-size: 0.85rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            width: 35%;
-        }
-
-        .score-team-label:last-child {
-            justify-content: flex-end;
-        }
-
-        .score-team-label img {
-            width: 22px;
-            border-radius: 3px;
-        }
-
-        .score-input-grid input {
-            width: 54px;
-            padding: 8px;
-            text-align: center;
-            font-size: 1.2rem;
-            font-weight: 800;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            background-color: #ffffff;
-            outline: none;
-            transition: all 0.2s;
-        }
-
-        .score-input-grid input:focus {
-            border-color: var(--orange-main);
-            box-shadow: 0 0 0 3px var(--orange-alpha);
-        }
-
-        .score-colon {
-            font-size: 1.2rem;
-            font-weight: 800;
-            color: var(--text-gray);
-        }
-
-        input[type="text"], .fixed-box {
-            width: 100%;
-            padding: 14px;
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            font-size: 0.9rem;
-            outline: none;
-            background-color: #f8fafc;
-            transition: all 0.2s;
-        }
-
-        .fixed-box {
-            background-color: #fff5ed;
-            border-color: #ffe6d5;
-            color: var(--orange-main);
-            font-weight: 700;
-        }
-
-        input[type="text"]:focus {
-            border-color: var(--orange-main);
-            background-color: #ffffff;
-            box-shadow: 0 0 0 3px var(--orange-alpha);
-        }
-
-        .btn-main {
-            width: 100%;
-            padding: 16px;
-            background-color: var(--orange-main);
-            color: #ffffff;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            box-shadow: 0 4px 6px rgba(255, 107, 0, 0.2);
-            transition: all 0.2s;
-        }
-
-        .btn-main:hover {
-            background-color: var(--orange-hover);
-            transform: translateY(-1px);
-        }
-
-        .list-container {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .list-card {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 14px 16px;
-            border: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
-
-        @keyframes scaleIn {
-            from { opacity: 0; transform: scale(0.95) translateY(5px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-
-        .list-user-info {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            flex: 1;
-        }
-
-        .list-name-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .list-name {
-            font-size: 1rem;
-            font-weight: 700;
-        }
-
-        .list-tag {
-            font-size: 0.7rem;
-            font-weight: 600;
-            background-color: #f1f5f9;
-            color: var(--text-gray);
-            padding: 2px 6px;
-            border-radius: 6px;
-        }
-
-        .list-predict {
-            font-size: 0.8rem;
-            color: var(--text-gray);
-        }
-
-        .list-right-section {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .list-score-badge {
-            background-color: #fff5ed;
-            color: var(--orange-main);
-            padding: 8px 16px;
-            border-radius: 30px;
-            font-size: 0.9rem;
-            font-weight: 800;
-            border: 1px solid #ffe6d5;
-            white-space: nowrap;
-        }
-
-        /* 개별 삭제 버튼 스타일 (초기엔 숨김) */
-        .btn-delete-item {
-            background: none;
-            border: none;
-            font-size: 1.1rem;
-            cursor: pointer;
-            padding: 4px;
-            display: none; 
-            transition: transform 0.2s;
-        }
-
-        .btn-delete-item:hover {
-            transform: scale(1.2);
-        }
-
-        .admin-area {
-            margin-top: 32px;
-            border-top: 1px dashed var(--border-color);
-            padding-top: 20px;
-            text-align: center;
-        }
-
-        .btn-admin-trigger {
-            font-size: 0.8rem;
-            color: #94a3b8;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-weight: 500;
-        }
-
-        .admin-panel {
-            margin-top: 12px;
-            background-color: #f8fafc;
-            padding: 16px;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            display: none;
-        }
-
-        .admin-panel.show {
-            display: block;
-        }
-
-        .btn-danger {
-            width: 100%;
-            padding: 12px;
-            background-color: #ef4444;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: rgba(15, 23, 42, 0.4);
-            backdrop-filter: blur(4px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-            z-index: 1000;
-            visibility: hidden;
-            opacity: 0;
-            transition: all 0.25s ease-in-out;
-        }
-
-        .modal-overlay.show {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        .modal-box {
-            background-color: #ffffff;
-            border-radius: 20px;
-            width: 100%;
-            max-width: 360px;
-            padding: 24px;
-            text-align: center;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            transform: translateY(10px);
-            transition: transform 0.25s ease-in-out;
-        }
-
-        .modal-overlay.show .modal-box {
-            transform: translateY(0);
-        }
-
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 1000; visibility: hidden; opacity: 0; transition: all 0.25s; }
+        .modal-overlay.show { visibility: visible; opacity: 1; }
+        .modal-box { background-color: #ffffff; border-radius: 20px; width: 100%; max-width: 360px; padding: 24px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); transform: translateY(10px); transition: all 0.25s; }
+        .modal-overlay.show .modal-box { transform: translateY(0); }
         .modal-title { font-size: 1.15rem; font-weight: 800; margin-bottom: 6px; }
         .modal-subtitle { font-size: 0.8rem; color: var(--text-gray); margin-bottom: 20px; }
-
-        .account-card {
-            background-color: #f8fafc;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 16px;
-            text-align: left;
-            margin-bottom: 20px;
-        }
-
+        .account-card { background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; text-align: left; margin-bottom: 20px; }
         .account-row { font-size: 0.85rem; margin-bottom: 6px; display: flex; }
-        .account-row:last-child { margin-bottom: 0; }
         .account-row span:first-child { color: var(--text-gray); display: inline-block; width: 70px; font-weight: 500; }
         .account-row span:last-child { font-weight: 700; color: var(--text-dark); }
-
         .modal-btns { display: flex; gap: 10px; }
         .modal-btn { flex: 1; padding: 14px; border: none; border-radius: 10px; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
-        .modal-btn-confirm { background-color: var(--orange-main); color: #fff; box-shadow: 0 4px 6px rgba(255, 107, 0, 0.2); }
+        .modal-btn-confirm { background-color: var(--sa-green); color: #fff; }
         .modal-btn-cancel { background-color: #f1f5f9; color: var(--text-gray); }
     </style>
 
@@ -538,13 +263,51 @@
         const totoRef = ref(database, 'hanwhaTotoList');
 
         let tempPrediction = null;
-        let isAdminAuthenticated = false; // 어드민 인증 상태 스토어
-        let currentSnapshotData = null;   // 실시간 캐싱 데이터 공간
+        let isAdminAuthenticated = false;
+        let currentSnapshotData = null;
+        let isDeadLinePassed = false; // 마감 여부 플래그 변수
+
+        // 📅 마감 타겟 시각 고정 파싱 (6월 24일 오전 9시 50분 KST)
+        const deadlineTime = new Date('2026-06-24T09:50:00').getTime();
+
+        function updateCountdown() {
+            const now = Date.now();
+            const distance = deadlineTime - now;
+            const timerElement = document.getElementById('matchTimer');
+            const submitBtn = document.getElementById('submitPredictionBtn');
+
+            if (distance <= 0) {
+                isDeadLinePassed = true;
+                if(timerElement) timerElement.textContent = "🔒 투표 마감";
+                if(submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = "🔒 경기 10분 전 투표 마감";
+                }
+                return;
+            }
+
+            // 역산 파싱
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            const pad = (num) => String(num).padStart(2, '0');
+            if(timerElement) {
+                timerElement.textContent = `마감까지 ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+            }
+            
+            // 만약 이전 배포본의 disabled 강제 하드코딩이 있다면 시간 남았을 때 한 번만 해제해줌
+            if(submitBtn && submitBtn.disabled && !isDeadLinePassed) {
+                submitBtn.disabled = false;
+            }
+        }
+
+        // 1초 루프 파이프라인 가동
+        setInterval(updateCountdown, 1000);
 
         window.switchTab = function(tabName) {
             const tabs = document.querySelectorAll('.tab-btn');
             const sections = document.querySelectorAll('.content-section');
-            
             tabs.forEach(t => t.classList.remove('active'));
             sections.forEach(s => s.classList.add('hidden'));
 
@@ -558,12 +321,15 @@
         }
 
         window.openDepositModal = function() {
+            // 더블 체킹 보안
+            if (isDeadLinePassed) { alert('마감 시간이 지났습니다!'); return; }
+
             const homeScore = document.getElementById('scoreHome').value.trim();
             const awayScore = document.getElementById('scoreAway').value.trim();
             const name = document.getElementById('inputName').value.trim();
             const dept = "IT지원파트";
 
-            if (homeScore === '' || awayScore === '') { alert('대한민국과 멕시코의 스코어를 모두 입력해 주세요!'); return; }
+            if (homeScore === '' || awayScore === '') { alert('대한민국과 남아공의 스코어를 모두 입력해 주세요!'); return; }
             if (!name) { alert('이름을 입력해 주세요!'); return; }
 
             tempPrediction = {
@@ -582,6 +348,7 @@
         }
 
         window.submitPrediction = function() {
+            if (isDeadLinePassed) { alert('시간이 마감되어 등록할 수 없습니다.'); return; }
             if (!tempPrediction) return;
 
             push(totoRef, tempPrediction).then(() => {
@@ -590,39 +357,29 @@
                 document.getElementById('inputName').value = '';
                 closeDepositModal();
                 switchTab('list');
-            }).catch((err) => {
-                alert('오류 발생: ' + err.message);
-            });
+            }).catch((err) => { alert('오류 발생: ' + err.message); });
         }
 
-        // 관리자 인증 핸들러 (인증 시 개별 삭제 활성화 플래그 On)
         window.toggleAdminPanel = function() {
             const panel = document.getElementById('adminPanel');
             if (panel.classList.contains('show')) {
                 panel.classList.remove('show');
                 isAdminAuthenticated = false;
-                renderList(currentSnapshotData); // 일반 뷰로 재렌더링
+                renderList(currentSnapshotData);
             } else {
                 const pwd = prompt('관리자 암호를 입력하세요:');
                 if (pwd === '5123') {
                     panel.classList.add('show');
                     isAdminAuthenticated = true;
-                    renderList(currentSnapshotData); // 어드민 뷰로 재렌더링 (삭제 버튼 노출)
-                } else {
-                    alert('비밀번호가 올바르지 않습니다.');
-                }
+                    renderList(currentSnapshotData);
+                } else { alert('비밀번호가 올바르지 않습니다.'); }
             }
         }
 
-        // [신규 기능] 단일 아이템 삭제 매핑 파이프라인
         window.deleteSingleItem = function(itemKey, userName) {
             if (confirm(`[관리자 기능] '${userName}'님의 데이터만 타겟 삭제하시겠습니까?`)) {
                 const targetItemRef = ref(database, `hanwhaTotoList/${itemKey}`);
-                set(targetItemRef, null).then(() => {
-                    alert('해당 데이터가 정상적으로 개별 삭제되었습니다.');
-                }).catch((err) => {
-                    alert('삭제 실패: ' + err.message);
-                });
+                set(targetItemRef, null).then(() => { alert('해당 데이터가 정상적으로 개별 삭제되었습니다.'); });
             }
         }
 
@@ -640,18 +397,13 @@
         const countBadge = document.getElementById('totalCountVal');
         const priceBadge = document.getElementById('totalPriceVal');
 
-        // 렌더링 코어 로직 분리 (데이터 갱신 및 상태 전환용)
         function renderList(snapshotVal) {
             listArea.innerHTML = '';
-            
             if (!snapshotVal) {
-                countBadge.textContent = '-';
-                priceBadge.textContent = '-';
+                countBadge.textContent = '-'; priceBadge.textContent = '-';
                 listArea.innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:0.85rem; padding:40px 20px;">🏆 아직 등록된 예측이 없습니다.<br>첫 번째 주인공이 되어보세요!</div>';
                 return;
             }
-
-            // Entries 매핑으로 고유 해시 키값(UID) 보존 추출
             const entries = Object.entries(snapshotVal);
             countBadge.textContent = `${entries.length}명`;
             priceBadge.textContent = `${(entries.length * 10000).toLocaleString()}원`;
@@ -659,17 +411,14 @@
             entries.forEach(([key, value]) => {
                 const card = document.createElement('div');
                 card.className = 'list-card';
-                
-                // 관리자 인증 플래그 상속 확인 후 삭제 뱃지 인라인 스타일 분기
                 const deleteBtnStyle = isAdminAuthenticated ? 'display: block;' : 'display: none;';
-
                 card.innerHTML = `
                     <div class="list-user-info">
                         <div class="list-name-row">
                             <span class="list-name">${value.name}</span>
                             <span class="list-tag">${value.dept}</span>
                         </div>
-                        <div class="list-predict">한국 vs 멕시코</div>
+                        <div class="list-predict">한국 vs 남아공</div>
                     </div>
                     <div class="list-right-section">
                         <div class="list-score-badge">${value.score}</div>
@@ -680,10 +429,10 @@
             });
         }
 
-        // 실시간 스트림 파이프라인 리스너
         onValue(totoRef, (snapshot) => {
-            currentSnapshotData = snapshot.val(); // 최신 스냅샷 글로벌 캐싱
+            currentSnapshotData = snapshot.val();
             renderList(currentSnapshotData);
+            updateCountdown(); // 초기화 바인딩
         });
     </script>
 </head>
@@ -702,12 +451,14 @@
                 </div>
                 <div class="vs-box">
                     <span class="vs-text">VS</span>
-                    <div class="match-time">6.19 (금) 10:00</div>
+                    <div class="countdown-container">
+                        <div id="matchTimer" class="countdown-timer">계산 중...</div>
+                    </div>
                 </div>
                 <div class="team-box">
-                    <img class="team-flag" src="https://flagcdn.com/w160/mx.png" alt="멕시코">
-                    <span class="team-name">멕시코</span>
-                    <span class="team-rank">FIFA 14위</span>
+                    <img class="team-flag" src="https://flagcdn.com/w160/za.png" alt="남아공">
+                    <span class="team-name">남아공</span>
+                    <span class="team-rank">FIFA 59위</span>
                 </div>
             </div>
             <div class="match-info-tags">
@@ -743,7 +494,7 @@
                 <span class="score-colon">:</span>
                 <input type="number" id="scoreAway" min="0" placeholder="0">
                 <div class="score-team-label">
-                    멕시코 <img src="https://flagcdn.com/w40/mx.png" alt="mx">
+                    남아공 <img src="https://flagcdn.com/w40/za.png" alt="za">
                 </div>
             </div>
 
@@ -757,7 +508,7 @@
                 <input type="text" id="inputName" placeholder="이름을 입력하세요">
             </div>
 
-            <button class="btn-main" onclick="openDepositModal()" disabled>⚽ 10,000원 내고 예측 등록</button>
+            <button id="submitPredictionBtn" class="btn-main" onclick="openDepositModal()">⚽ 10,000원 내고 예측 등록</button>
         </div>
 
         <div id="section-list" class="content-section hidden">
@@ -787,7 +538,7 @@
                 <div class="account-row"><span>입금액</span><span>10,000원</span></div>
             </div>
 
-            <p style="font-size: 0.75rem; color:#e05e00; margin-bottom:18px; font-weight:700;">
+            <p style="font-size: 0.75rem; color:#007a4d; margin-bottom:18px; font-weight:700;">
                 입금 후 확인 버튼을 눌러 예측을 등록하세요
             </p>
 
