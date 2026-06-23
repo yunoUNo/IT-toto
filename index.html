@@ -212,10 +212,13 @@
         }
         select:focus, input[type="text"]:focus { border-color: var(--sa-green); box-shadow: 0 0 0 3px var(--sa-alpha); }
 
-        .btn-main { width: 100%; padding: 16px; background-color: var(--sa-green); color: #ffffff; border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 6px rgba(0, 122, 77, 0.2); transition: all 0.2s; }
+        .btn-group { display: flex; gap: 10px; margin-top: 12px; }
+        .btn-main { flex: 2; padding: 16px; background-color: var(--sa-green); color: #ffffff; border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 6px rgba(0, 122, 77, 0.2); transition: all 0.2s; }
         .btn-main:hover { background-color: #00643f; transform: translateY(-1px); }
+        .btn-sub { flex: 1; padding: 16px; background-color: #475569; color: #ffffff; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; transition: all 0.2s; }
+        .btn-sub:hover { background-color: #334155; transform: translateY(-1px); }
         
-        .btn-main:disabled {
+        .btn-main:disabled, .btn-sub:disabled {
             background-color: #cbd5e1 !important;
             color: #94a3b8 !important;
             cursor: not-allowed !important;
@@ -277,6 +280,8 @@
         const totoRef = ref(database, 'hanwhaTotoList');
 
         let tempPrediction = null;
+        let isEditMode = false;
+        let targetEditKey = null;
         let isAdminAuthenticated = false;
         let currentSnapshotData = null;
         let isDeadLinePassed = false; 
@@ -289,13 +294,17 @@
             const distance = deadlineTime - now;
             const timerElement = document.getElementById('matchTimer');
             const submitBtn = document.getElementById('submitPredictionBtn');
+            const modifyBtn = document.getElementById('modifyPredictionBtn');
 
             if (distance <= 0) {
                 isDeadLinePassed = true;
                 if(timerElement) timerElement.textContent = "🔒 투표 마감";
                 if(submitBtn) {
                     submitBtn.disabled = true;
-                    submitBtn.textContent = "🔒 경기 10분 전 투표 마감";
+                    submitBtn.textContent = "🔒 마감됨";
+                }
+                if(modifyBtn) {
+                    modifyBtn.disabled = true;
                 }
                 return;
             }
@@ -314,9 +323,8 @@
                 }
             }
             
-            if(submitBtn && submitBtn.disabled && !isDeadLinePassed) {
-                submitBtn.disabled = false;
-            }
+            if(submitBtn && submitBtn.disabled && !isDeadLinePassed) submitBtn.disabled = false;
+            if(modifyBtn && modifyBtn.disabled && !isDeadLinePassed) modifyBtn.disabled = false;
         }
 
         setInterval(updateCountdown, 1000);
@@ -336,6 +344,7 @@
             }
         }
 
+        // 예측 등록 프로세스 (기존 로직 유지)
         window.openDepositModal = function() {
             if (isDeadLinePassed) { alert('마감 시간이 지났습니다!'); return; }
 
@@ -347,6 +356,9 @@
             if (homeScore === '' || awayScore === '') { alert('대한민국과 남아공의 스코어를 모두 입력해 주세요!'); return; }
             if (!name) { alert('이름을 입력해 주세요!'); return; }
 
+            isEditMode = false;
+            targetEditKey = null;
+
             tempPrediction = {
                 name: name,
                 dept: dept,
@@ -355,6 +367,60 @@
             };
 
             document.getElementById('modalOverlay').classList.add('show');
+        }
+
+        // 📝 수정하기 버튼 로직 추가 (동일한 마감 조건 체크)
+        window.handleModification = function() {
+            if (isDeadLinePassed) { alert('마감 시간이 지나 수정할 수 없습니다!'); return; }
+
+            const homeScore = document.getElementById('scoreHome').value.trim();
+            const awayScore = document.getElementById('scoreAway').value.trim();
+            const name = document.getElementById('inputName').value.trim();
+            const dept = document.getElementById('selectDept').value;
+
+            if (homeScore === '' || awayScore === '') { alert('대한민국과 남아공의 스코어를 모두 입력해 주세요!'); return; }
+            if (!name) { alert('이름을 입력해 주세요!'); return; }
+
+            // DB에서 이름과 파트가 완전히 일치하는 기존 데이터가 있는지 검색
+            let foundKey = null;
+            if (currentSnapshotData) {
+                for (const [key, val] of Object.entries(currentSnapshotData)) {
+                    if (val.name === name && val.dept === dept) {
+                        foundKey = key;
+                        break;
+                    }
+                }
+            }
+
+            if (!foundKey) {
+                alert('입력하신 이름과 파트로 등록된 투표 데이터가 없습니다.\n이름과 파트를 다시 확인하시거나 새로 예측 등록을 해주세요.');
+                return;
+            }
+
+            if (confirm(`'${name} (${dept})'님의 기존 예측 스코어를 [ ${homeScore} : ${awayScore} ]로 수정하시겠습니까?`)) {
+                const targetRef = ref(database, `hanwhaTotoList/${foundKey}`);
+                const updatedData = {
+                    name: name,
+                    dept: dept,
+                    score: `${homeScore}:${awayScore}`,
+                    timestamp: Date.now()
+                };
+
+                set(targetRef, updatedData)
+                    .then(() => {
+                        alert('예측 스코어가 성공적으로 수정되었습니다.');
+                        clearForm();
+                        switchTab('list');
+                    })
+                    .catch((err) => { alert('수정 오류 발생: ' + err.message); });
+            }
+        }
+
+        function clearForm() {
+            document.getElementById('scoreHome').value = '';
+            document.getElementById('scoreAway').value = '';
+            document.getElementById('inputName').value = '';
+            document.getElementById('selectDept').selectedIndex = 0; 
         }
 
         window.closeDepositModal = function() {
@@ -367,10 +433,7 @@
             if (!tempPrediction) return;
 
             push(totoRef, tempPrediction).then(() => {
-                document.getElementById('scoreHome').value = '';
-                document.getElementById('scoreAway').value = '';
-                document.getElementById('inputName').value = '';
-                document.getElementById('selectDept').selectedIndex = 0; 
+                clearForm();
                 closeDepositModal();
                 switchTab('list');
             }).catch((err) => { alert('오류 발생: ' + err.message); });
@@ -532,7 +595,10 @@
                 <input type="text" id="inputName" placeholder="이름을 입력하세요">
             </div>
 
-            <button id="submitPredictionBtn" class="btn-main" onclick="openDepositModal()">⚽ 10,000원 내고 예측 등록</button>
+            <div class="btn-group">
+                <button id="submitPredictionBtn" class="btn-main" onclick="openDepositModal()">⚽ 예측 등록</button>
+                <button id="modifyPredictionBtn" class="btn-sub" onclick="handleModification()">✏️ 수정</button>
+            </div>
         </div>
 
         <div id="section-list" class="content-section hidden">
