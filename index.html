@@ -286,7 +286,6 @@
         let currentSnapshotData = null;
         let isDeadLinePassed = false; 
 
-        // 📅 경기 시각 수정 반영: 2026-06-25 09:50:00 KST 절대 타임스탬프 밀리초 지정
         const deadlineTime = 1782348600000; 
 
         function updateCountdown() {
@@ -303,9 +302,7 @@
                     submitBtn.disabled = true;
                     submitBtn.textContent = "🔒 마감됨";
                 }
-                if(modifyBtn) {
-                    modifyBtn.disabled = true;
-                }
+                if(modifyBtn) modifyBtn.disabled = true;
                 return;
             }
 
@@ -344,7 +341,6 @@
             }
         }
 
-        // 예측 등록 프로세스 (기존 로직 유지)
         window.openDepositModal = function() {
             if (isDeadLinePassed) { alert('마감 시간이 지났습니다!'); return; }
 
@@ -369,7 +365,6 @@
             document.getElementById('modalOverlay').classList.add('show');
         }
 
-        // 📝 수정하기 버튼 로직 추가 (동일한 마감 조건 체크)
         window.handleModification = function() {
             if (isDeadLinePassed) { alert('마감 시간이 지나 수정할 수 없습니다!'); return; }
 
@@ -381,7 +376,6 @@
             if (homeScore === '' || awayScore === '') { alert('대한민국과 남아공의 스코어를 모두 입력해 주세요!'); return; }
             if (!name) { alert('이름을 입력해 주세요!'); return; }
 
-            // DB에서 이름과 파트가 완전히 일치하는 기존 데이터가 있는지 검색
             let foundKey = null;
             if (currentSnapshotData) {
                 for (const [key, val] of Object.entries(currentSnapshotData)) {
@@ -476,6 +470,7 @@
         const countBadge = document.getElementById('totalCountVal');
         const priceBadge = document.getElementById('totalPriceVal');
 
+        // 📊 스코어 기준 정렬 로직 반영 영역
         function renderList(snapshotVal) {
             listArea.innerHTML = '';
             if (!snapshotVal) {
@@ -486,6 +481,17 @@
             const entries = Object.entries(snapshotVal);
             countBadge.textContent = `${entries.length}명`;
             priceBadge.textContent = `${(entries.length * 10000).toLocaleString()}원`;
+
+            // 🔄 스코어 순 정렬 (한국 다득점 순 -> 한국 스코어 같으면 남아공 다득점 순 내림차순 정렬)
+            entries.sort((a, b) => {
+                const [aHome, aAway] = a[1].score.split(':').map(Number);
+                const [bHome, bAway] = b[1].score.split(':').map(Number);
+                
+                if (bHome !== aHome) {
+                    return bHome - aHome; // 한국 스코어 내림차순
+                }
+                return bAway - aAway; // 남아공 스코어 내림차순
+            });
 
             entries.forEach(([key, value]) => {
                 const card = document.createElement('div');
@@ -564,7 +570,7 @@
 
         <div id="section-vote" class="content-section">
             <div class="section-title">스코어 예측</div>
-            <div class="section-title">등록은 입금완료 후 부탁드립니다 (경기시작 10분전 까지 가능)</div>
+            
             <div class="score-input-grid">
                 <div class="score-team-label">
                     <img src="https://flagcdn.com/w40/kr.png" alt="kr"> 대한민국
